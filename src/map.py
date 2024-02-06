@@ -1,4 +1,5 @@
 import math
+from settings import width, height, empty, tile, mouse
 
 
 def check_tile_or_empty(start, end, index):
@@ -6,12 +7,6 @@ def check_tile_or_empty(start, end, index):
 
 
 def create_map():
-    height = 21
-    width = 21
-
-    empty = 0
-    tile = 1
-    mouse = 2
 
     # where tiles start and end
     tile_start_x = math.floor(width/4) - 2

@@ -7,11 +7,12 @@ def start():
     map = create_map()
     scale = images[0].get_width()
 
-    width = len(map[0])
-    height = len(map)
+    display_width = len(map[0])
+    display_height = len(map)
 
     pygame.init()
-    display = pygame.display.set_mode((width * scale, height * scale))
+    display = pygame.display.set_mode(
+        (display_width * scale, display_height * scale))
 
     pygame.display.set_caption("Mouse")
 
@@ -21,7 +22,8 @@ def start():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        draw_display(display, width, height, map, images, scale)
+        draw_display(display, display_width,
+                     display_height, map, images, scale)
         pygame.display.flip()
 
     pygame.quit()
