@@ -1,7 +1,11 @@
 import pygame
 from map import Map
-from mouse import Mouse
-from settings import width, height, mouse_start_x, mouse_start_y
+from sprite import Sprite
+from cat import Cat
+from settings import (width, height,
+                      mouse_start_x, mouse_start_y,
+                      cat_one_start, cat_two_start,
+                      cat_three_start, cat_four_start)
 
 
 def start():
@@ -10,7 +14,13 @@ def start():
     map.create_map()
     scale = images[0].get_width()
 
-    mouse = Mouse(mouse_start_x, mouse_start_y)
+    mouse = Sprite(mouse_start_x, mouse_start_y)
+    cats = [
+        Cat(cat_one_start[1], cat_one_start[0]),
+        Cat(cat_two_start[1], cat_two_start[0]),
+        Cat(cat_three_start[1], cat_three_start[0]),
+        Cat(cat_four_start[1], cat_four_start[0])
+    ]
 
     pygame.init()
     display = pygame.display.set_mode(
@@ -97,6 +107,11 @@ def handle_event_move_down(mouse, map):
     if (mouse.is_possible_move(width, height, x, y) and
             map.move_tiles_down(x, y)):
         move_mouse(mouse, map, x, y)
+
+
+def move_cats(cats, map):
+    for cat in cats:
+        cat.move(map)
 
 
 if __name__ == '__main__':
