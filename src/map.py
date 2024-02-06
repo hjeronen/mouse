@@ -1,38 +1,82 @@
 import math
-from settings import width, height, empty, tile, mouse
+from settings import width, height, empty, tile, mouse, mouse_start_x, mouse_start_y
 
 
-def check_tile_or_empty(start, end, index):
-    return start < index < end
+class Map:
 
+    def __init__(self):
+        self.map = []
 
-def create_map():
+    def check_tile_or_empty(self, start, end, index):
+        return start < index < end
 
-    # where tiles start and end
-    tile_start_x = math.floor(width/4) - 2
-    tile_start_y = math.floor(height/4) - 2
+    def create_map(self):
 
-    tile_end_x = width - tile_start_x - 1
-    tile_end_y = height - tile_start_y - 1
+        # where tiles start and end
+        tile_start_x = math.floor(width/4) - 2
+        tile_start_y = math.floor(height/4) - 2
 
-    map = []
+        tile_end_x = width - tile_start_x - 1
+        tile_end_y = height - tile_start_y - 1
 
-    # create map
-    for i in range(0, height):
-        row = []
+        # create map
+        for i in range(0, height):
+            row = []
 
-        # create rows
-        for j in range(0, width):
-            x_is_tile = check_tile_or_empty(tile_start_x, tile_end_x, j)
-            y_is_tile = check_tile_or_empty(tile_start_y, tile_end_y, i)
+            # create rows - set tile or empty
+            for j in range(0, width):
+                x_is_tile = self.check_tile_or_empty(
+                    tile_start_x, tile_end_x, j)
+                y_is_tile = self.check_tile_or_empty(
+                    tile_start_y, tile_end_y, i)
 
-            if (x_is_tile & y_is_tile):
-                row.append(tile)
-            else:
-                row.append(empty)
+                if (x_is_tile & y_is_tile):
+                    row.append(tile)
+                else:
+                    row.append(empty)
 
-        map.append(row)
+            self.map.append(row)
 
-    map[math.floor(height/2)][math.floor(width/2)] = mouse
+        # set mouse
+        self.map[mouse_start_y][mouse_start_x] = mouse
 
-    return map
+        return map
+
+    def move_mouse(self, old_x, old_y, new_x, new_y):
+        self.map[old_y][old_x] = empty
+        self.map[new_y][new_x] = mouse
+
+    def move_tiles_left(self, x, y):
+        if x < 0:
+            return False
+        if self.map[y][x] == empty:
+            self.map[y][x] = tile
+            return True
+        return self.move_tiles_left(x - 1, y)
+
+    def move_tiles_right(self, x, y):
+        if x == width:
+            return False
+        if self.map[y][x] == empty:
+            self.map[y][x] = tile
+            return True
+        return self.move_tiles_right(x + 1, y)
+
+    def move_tiles_up(self, x, y):
+        if y < 0:
+            return False
+        if self.map[y][x] == empty:
+            self.map[y][x] = tile
+            return True
+        return self.move_tiles_up(x, y - 1)
+
+    def move_tiles_down(self, x, y):
+        if y == height:
+            return False
+        if self.map[y][x] == empty:
+            self.map[y][x] = tile
+            return True
+        return self.move_tiles_down(x, y + 1)
+
+    def get_location(self, x, y):
+        return self.map[y][x]
