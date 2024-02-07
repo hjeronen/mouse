@@ -1,4 +1,5 @@
 import math
+from collections import deque
 from settings import (width, height, empty, tile,
                       mouse, cat,
                       mouse_start_x, mouse_start_y,
@@ -56,6 +57,10 @@ class Map:
         self.map[old_y][old_x] = empty
         self.map[new_y][new_x] = mouse
 
+    def move_cat(self, old_x, old_y, new_x, new_y):
+        self.map[old_y][old_x] = empty
+        self.map[new_y][new_x] = cat
+
     def move_tiles_left(self, x, y):
         if x < 0:
             return False
@@ -100,8 +105,68 @@ class Map:
         return self.map[y][x]
 
     def get_distances(self, mouse):
-        distances = []
+        """
+        Get distance from each index to mouse.
 
-        # will be implemented later
+        Using Dijkstra's algorithm. The place tuple (y, x) represents
+        a place in the map matrix, and is accessed with map[y][x].
+
+        """
+        queue = deque()
+        handled = [[False for x in range(len(self.map[0]))]
+                   for y in range(len(self.map))]
+        distances = [[1000 for x in range(len(self.map[0]))]
+                     for y in range(len(self.map))]
+
+        queue.append((mouse.y, mouse.x))
+        distances[mouse.y][mouse.x] = 0
+
+        while len(queue) > 0:
+            place = queue.popleft()
+
+            if handled[place[0]][place[1]]:
+                continue
+
+            handled[place[0]][place[1]] = True
+
+            adjacent = self.get_adjacent_places(place)
+            for node in adjacent:
+                current_distance = distances[node[0]][node[1]]
+                new_distance = distances[place[0]][place[1]] + 1
+
+                if new_distance < current_distance:
+                    distances[node[0]][node[1]] = new_distance
+                    queue.append(node)
+
+        # print("Etäisyydet: ")
+        # for line in distances:
+        #     print(line)
 
         return distances
+
+    def get_adjacent_places(self, place):
+        """
+        Loop through adjacent places and return a list of possible moves.
+        """
+        places = []
+        adjacent = [-1, 0, 1]
+
+        for move_y in adjacent:
+            y = place[0] + move_y
+
+            # check if going over the map
+            if y < 0 or y == height:
+                continue
+
+            for move_x in adjacent:
+                x = place[1] + move_x
+
+                if x < 0 or x == width:
+                    continue
+
+                if y == place[0] and x == place[1]:
+                    continue
+
+                places.append((y, x))
+
+        return places

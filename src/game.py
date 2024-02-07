@@ -1,4 +1,5 @@
 import pygame
+import time
 from map import Map
 from sprite import Sprite
 from cat import Cat
@@ -29,9 +30,19 @@ def start():
     pygame.display.set_caption("Mouse")
 
     running = True
+    cat_timer = 0
+    fps = 60
 
     while running:
+        time.sleep(1/fps)
+
         check_events(mouse, map)
+        cat_timer += 1
+
+        if cat_timer >= 60:
+            move_cats(mouse, cats, map)
+            cat_timer = 0
+
         draw_display(display, map, images, scale)
         pygame.display.flip()
 
@@ -109,9 +120,13 @@ def handle_event_move_down(mouse, map):
         move_mouse(mouse, map, x, y)
 
 
-def move_cats(cats, map):
+def move_cats(mouse, cats, map):
+    distances = map.get_distances(mouse)
     for cat in cats:
-        cat.move(map)
+        old_x = cat.x
+        old_y = cat.y
+        cat.move(map, distances)
+        map.move_cat(old_x, old_y, cat.x, cat.y)
 
 
 if __name__ == '__main__':
