@@ -108,14 +108,21 @@ class Map:
         """
         Get distance from each index to mouse.
 
-        Using Dijkstra's algorithm. The place tuple (y, x) represents
+        Using Dijkstra's algorithm. The 'place' tuple (y, x) represents
         a place in the map matrix, and is accessed with map[y][x].
 
+        Start from mouse, set its distance to 0.
+
+        Pop place from the queue, go through adjacent nodes and set/update
+        their distance from mouse. If node is a tile, add 1000 to its
+        distance (because not possible to walk through tiles).
+
+        Return matrix containing each place's shortest distance from mouse.
         """
         queue = deque()
         handled = [[False for x in range(len(self.map[0]))]
                    for y in range(len(self.map))]
-        distances = [[1000 for x in range(len(self.map[0]))]
+        distances = [[10000 for x in range(len(self.map[0]))]
                      for y in range(len(self.map))]
 
         queue.append((mouse.y, mouse.x))
@@ -133,14 +140,13 @@ class Map:
             for node in adjacent:
                 current_distance = distances[node[0]][node[1]]
                 new_distance = distances[place[0]][place[1]] + 1
+                if self.map[node[0]][node[1]] == tile:
+                    new_distance += 1000
 
                 if new_distance < current_distance:
                     distances[node[0]][node[1]] = new_distance
+                    handled[node[0]][node[1]] = False
                     queue.append(node)
-
-        # print("Etäisyydet: ")
-        # for line in distances:
-        #     print(line)
 
         return distances
 

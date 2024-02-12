@@ -12,16 +12,14 @@ class Cat(Sprite):
         places = []
         moves = [-1, 0, 1]
 
-        row = self.y - 1
-        end = self.y + 1
-
-        while row <= end:
+        for move in moves:
+            row = self.y + move
             # check if y coordinate goes over the map
             if row < 0:
                 continue
 
             if row == height:
-                break
+                continue
 
             # loop through x values on the row
             for move in moves:
@@ -34,13 +32,11 @@ class Cat(Sprite):
                     continue
 
                 if new_x == width:
-                    break
+                    continue
 
                 location_value = map.get_location(new_x, row)
                 if location_value == empty or location_value == mouse:
                     places.append((row, new_x))
-
-            row += 1
 
         return places
 
