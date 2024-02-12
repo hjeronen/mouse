@@ -1,7 +1,7 @@
 import pygame
 import time
 from map import Map
-from sprite import Sprite
+from mouse import Mouse
 from cat import Cat
 from settings import (width, height,
                       mouse_start_x, mouse_start_y,
@@ -15,7 +15,7 @@ def start():
     map.create_map()
     scale = images[0].get_width()
 
-    mouse = Sprite(mouse_start_x, mouse_start_y)
+    mouse = Mouse(mouse_start_x, mouse_start_y)
     cats = [
         Cat(cat_one_start[1], cat_one_start[0]),
         Cat(cat_two_start[1], cat_two_start[0]),
@@ -29,24 +29,33 @@ def start():
 
     pygame.display.set_caption("Mouse")
 
+    game_loop(mouse, cats, display, map, images, scale)
+
+    pygame.quit()
+
+
+def game_loop(mouse, cats, display, map, images, scale):
     running = True
     cat_timer = 0
     fps = 60
 
     while running:
         time.sleep(1/fps)
-
         check_events(mouse, map)
-        cat_timer += 1
 
+        if not mouse.alive:
+            draw_game_over_display(display, scale)
+            continue
+
+        cat_timer += 1
         if cat_timer >= 60:
             move_cats(mouse, cats, map)
             cat_timer = 0
 
-        draw_display(display, map, images, scale)
-        pygame.display.flip()
+        draw_game_display(display, map, images, scale)
 
-    pygame.quit()
+        collision = check_collision(mouse, cats)
+        mouse.set_alive(collision)
 
 
 def load_images():
@@ -57,7 +66,7 @@ def load_images():
     return images
 
 
-def draw_display(display, map, images, scale):
+def draw_game_display(display, map, images, scale):
     display.fill((0, 0, 0))
 
     for y in range(height):
@@ -65,12 +74,28 @@ def draw_display(display, map, images, scale):
             tile = map.get_location(x, y)
             display.blit(images[tile], (x*scale, y*scale))
 
+    pygame.display.flip()
+
+
+def draw_game_over_display(display, scale):
+    black = (0, 0, 0)
+    green = (0, 255, 0)
+    x = width * scale
+    y = height * scale
+    font = pygame.font.Font('freesansbold.ttf', 32)
+    text = font.render('Game Over', True, green, black)
+    textRect = text.get_rect()
+    textRect.center = (x//2, y//2)
+    display.fill(black)
+    display.blit(text, textRect)
+    pygame.display.flip()
+
 
 def check_events(mouse, map):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit()
-        if event.type == pygame.KEYDOWN:
+        if mouse.alive and event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 handle_event_move_left(mouse, map)
             if event.key == pygame.K_RIGHT:
@@ -127,6 +152,14 @@ def move_cats(mouse, cats, map):
         old_y = cat.y
         cat.move(map, distances)
         map.move_cat(old_x, old_y, cat.x, cat.y)
+
+
+def check_collision(mouse, cats):
+    for cat in cats:
+        if (cat.x, cat.y) == (mouse.x, mouse.y):
+            return True
+
+    return False
 
 
 if __name__ == '__main__':
